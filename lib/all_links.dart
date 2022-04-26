@@ -1,0 +1,10 @@
+export 'package:get/get.dart';
+export 'package:scure_costom_keyboard/main.dart';
+export 'package:flutter/material.dart';
+export 'package:scure_costom_keyboard/view/screens/keyboard.dart';
+export 'package:scure_costom_keyboard/view/AuthenticationView/registration.dart';
+export 'package:scure_costom_keyboard/view/AuthenticationView/login.dart';
+export 'package:scure_costom_keyboard/view/ChatView/home_chat_view.dart';
+export 'package:scure_costom_keyboard/view/ChatView/add_new_group.dart';
+export 'package:scure_costom_keyboard/view/ChatView/add_new_member.dart';
+export 'package:scure_costom_keyboard/Widgets/bottom_nav_bar.dart';
