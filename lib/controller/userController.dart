@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../model/user_model.dart';
 
 String ip = '192.168.43.45';
@@ -52,5 +53,19 @@ getUserList() async {
     return list;
   } else {
     return false;
+  }
+}
+
+getUserNumber() async
+{
+  final prefs = await SharedPreferences.getInstance();
+  String phone=prefs.get('phoneno');
+  if (phone!=null)
+  {
+    return phone;
+  }
+  else 
+  {
+    return null;
   }
 }

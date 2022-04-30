@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:scure_costom_keyboard/all_links.dart';
 import 'package:scure_costom_keyboard/model/group_model.dart';
-
+import 'package:scure_costom_keyboard/view/ChatView/my_groups.dart';
 
 import '../../Widgets/bottom_nav_bar.dart';
 import '../../Widgets/custom_snackbar.dart';
@@ -15,43 +15,62 @@ class AddNewGroup extends StatefulWidget {
   @override
   _AddNewGroupState createState() => _AddNewGroupState();
 }
-late TextEditingController _controlGroupName= TextEditingController();
-List<String> groupTypes=['Friendship', 'Informative', 'Politics', 'Fun', 'Girls'];
+
+late TextEditingController _controlGroupName = TextEditingController();
+List<String> groupTypes = [
+  'Friendship',
+  'Informative',
+  'Politics',
+  'Fun',
+  'Girls'
+];
 String dropdownValue = 'Friendship';
 
 class _AddNewGroupState extends State<AddNewGroup> {
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery
-        .of(context)
-        .size;
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       //____________________________________BODY
-      body: SingleChildScrollView(
-        child: Container(
-          width: size.width,
-          height: size.height,
-          child: Column(
-            children: [
-              Expanded(
-                  flex: 50,
-                  child:Container(
-                   // color: Colors.red,
-                    width: size.width,
-                    child: HeaderImage(),
-                  )),
-              Expanded(
-                  flex: 50,
-                  child:Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
-                    child: Container(
-                      //color: Colors.yellow,
-
-                 child: FormCollumn(),
-                    ),
-                  ))
+      body: Container(
+        width: size.width,
+        height: size.height,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          // image: DecorationImage(
+          //   image: AssetImage("images/Wall Paper2.jpg"),
+          //   fit: BoxFit.cover,
+          //   opacity: 0.6,
+          // ),
+          gradient: LinearGradient(
+            colors: [
+              Colors.lightBlue,
+              Colors.greenAccent,
             ],
+            begin: Alignment.bottomRight,
+            end: Alignment.topLeft,
           ),
+        ),
+        child: Column(
+          children: [
+            Expanded(
+                flex: 50,
+                child: Container(
+                  child: HeaderImage(),
+                )),
+            Expanded(
+                flex: 50,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+                  child: Container(
+                    //color: Colors.yellow,
+
+                    child: FormCollumn(),
+                  ),
+                ))
+          ],
         ),
       ),
 
@@ -61,17 +80,17 @@ class _AddNewGroupState extends State<AddNewGroup> {
   }
 }
 
-
 class HeaderImage extends StatelessWidget {
   const HeaderImage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Container(
-      child: Image.asset('images/addgroup.jpg',
-        fit: BoxFit.cover,
-      )
-    );
+        child: Icon(
+      Icons.group_add,
+      size: size.height * 0.3,
+    ));
   }
 }
 
@@ -85,49 +104,48 @@ class FormCollumn extends StatefulWidget {
 class _FormCollumnState extends State<FormCollumn> {
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery
-        .of(context)
-        .size;
+    Size size = MediaQuery.of(context).size;
     return Container(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Container(
-            width: size.width-40,
+            width: size.width - 40,
             height: 50,
             decoration: BoxDecoration(
-              color: Colors.grey,
+              color: Colors.white,
               border: Border.all(
-                color: Colors.black26,
+                color: Colors.black,
               ),
               borderRadius: BorderRadius.circular(15),
             ),
             child: TextFormField(
-              controller:_controlGroupName,
+              controller: _controlGroupName,
               decoration: const InputDecoration(
                   border: InputBorder.none,
-                prefixIcon: Icon(
-                  Icons.person,
-                  size: 16,
-                  color:Colors.black54,
-                ),
-                hintText: "Enter Group Name",
-                hintStyle: TextStyle(
-                  color: Colors.black,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w300,
-                )
-              ),
+                  prefixIcon: Icon(
+                    Icons.person,
+                    size: 16,
+                    color: Colors.black54,
+                  ),
+                  hintText: "Enter Group Name",
+                  hintStyle: TextStyle(
+                    color: Colors.black,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w300,
+                  )),
             ),
           ),
-          SizedBox(height: 20,),
+          SizedBox(
+            height: 20,
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Center(
               child: DropdownButtonHideUnderline(
                 child: DropdownButton2(
                   dropdownFullScreen: true,
-                 isExpanded: true,
+                  isExpanded: true,
                   hint: Row(
                     children: const [
                       Icon(
@@ -144,7 +162,7 @@ class _FormCollumnState extends State<FormCollumn> {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: Colors.black,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -153,17 +171,17 @@ class _FormCollumnState extends State<FormCollumn> {
                   ),
                   items: groupTypes
                       .map((item) => DropdownMenuItem<String>(
-                    value: item,
-                    child: Text(
-                      item,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ))
+                            value: item,
+                            child: Text(
+                              item,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ))
                       .toList(),
                   value: dropdownValue,
                   onChanged: (value) {
@@ -175,7 +193,7 @@ class _FormCollumnState extends State<FormCollumn> {
                     Icons.arrow_forward_ios_outlined,
                   ),
                   iconSize: 14,
-                  iconEnabledColor: Colors.white,
+                  iconEnabledColor: Colors.black,
                   iconDisabledColor: Colors.grey,
                   buttonHeight: 50,
                   buttonWidth: size.width,
@@ -185,17 +203,17 @@ class _FormCollumnState extends State<FormCollumn> {
                     border: Border.all(
                       color: Colors.black26,
                     ),
-                    color: Colors.grey,
+                    color: Colors.white,
                   ),
                   buttonElevation: 2,
                   itemHeight: 40,
                   itemPadding: const EdgeInsets.only(left: 14, right: 14),
                   dropdownMaxHeight: 200,
-                  dropdownWidth: size.width-40,
+                  dropdownWidth: size.width - 40,
                   dropdownPadding: null,
                   dropdownDecoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(14),
-                    color: Colors.grey,
+                    color: Colors.white,
                   ),
                   dropdownElevation: 8,
                   scrollbarRadius: const Radius.circular(40),
@@ -206,46 +224,45 @@ class _FormCollumnState extends State<FormCollumn> {
               ),
             ),
           ),
-          SizedBox(height: 20,),
+          SizedBox(
+            height: 20,
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
             child: MaterialButton(
-              onPressed: () async
-              {
-                Group group=Group(
-                   groupname: _controlGroupName.text,
-                   type: dropdownValue.toString(),
-                  adminno: '03105499844'
-                );
-               bool check=await postDataForGroup(group);
-               if(check==true)
-                 {
-                   print('Data Saved ....!!!!');
-                   showSnackBar(context, 'Group Added Successfully', 'ok');
-                 }
-               else{
-                 print('Not Saved ....!!!!');
-                 showSnackBar(context, 'Something Went Wrong', 'ok');
-                 //Snackbar
-               }
+              onPressed: () async {
+                Group group = Group(
+                    groupname: _controlGroupName.text,
+                    type: dropdownValue.toString(),
+                    adminno: '03105499844');
+                bool check = await postDataForGroup(group);
+                if (check == true) {
+                  showSnackBar(context, 'Group Added Successfully', 'ok');
+                  Get.to(MyGroupsScreen());
+                } else {
+                  print('Not Saved ....!!!!');
+                 
+                  //Snackbar
+                }
               },
               child: Container(
                 height: 50,
                 decoration: BoxDecoration(
-                  color: Colors.grey,
+                  color: Colors.white,
                   border: Border.all(
-                    color: Colors.black26,
+                    color: Colors.black,
                   ),
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: Center(
-                  child: Text("Add Group", style: GoogleFonts.josefinSans(
-                  fontSize: 18,
-                    fontWeight: FontWeight.w800,
-
-                  ),),
+                  child: Text(
+                    "Add Group",
+                    style: GoogleFonts.josefinSans(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                 ),
-
               ),
             ),
           )
@@ -254,4 +271,3 @@ class _FormCollumnState extends State<FormCollumn> {
     );
   }
 }
-

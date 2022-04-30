@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scure_costom_keyboard/view/ChatView/add_new_group.dart';
+import 'package:scure_costom_keyboard/view/ChatView/my_groups.dart';
 import 'package:scure_costom_keyboard/view/HomepageView/home_page.dart';
 import 'package:scure_costom_keyboard/view/screens/testing.dart';
 import 'all_links.dart';
@@ -26,7 +27,7 @@ class MyApp extends StatelessWidget {
         //primarySwatch: Colors.teal,
         primarySwatch: Colors.green,
       ),
-      home: AddNewGroup(),
+      home: CustomKeyboard(),
     );
   }
 }

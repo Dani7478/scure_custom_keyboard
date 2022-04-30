@@ -1,288 +1,568 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-class KeyboardDemo extends StatefulWidget {
+class CustomKeyboard extends StatefulWidget {
+  const CustomKeyboard({Key? key}) : super(key: key);
+
   @override
-  _KeyboardDemoState createState() => _KeyboardDemoState();
+  _CustomKeyboardState createState() => _CustomKeyboardState();
 }
 
-class _KeyboardDemoState extends State<KeyboardDemo> {
-  TextEditingController _controller = TextEditingController();
-  bool _readOnly = true;
+bool _keyboardopen=false;
+IconData icon=Icons.add;
+String _message='';
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Column(
-        children: [
-          SizedBox(height: 50),
-          TextField(
-            controller: _controller,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(3),
+class _CustomKeyboardState extends State<CustomKeyboard> {
+  int keyNo = 0;
+  final List<Widget> _cardList = [];
+
+  void _addCardWidget() {
+    setState(() {
+      _cardList.add(_card1(keyNo));
+    });
+  }
+
+  void _removeCardWidget() {
+    setState(() {
+      _cardList.removeAt(keyNo);
+    });
+  }
+
+  void _addCardWidget2() {
+    setState(() {
+      _cardList.add(_card2(keyNo));
+    });
+  }
+
+  void _addCardWidget3() {
+    setState(() {
+      _cardList.add(_card3(keyNo));
+    });
+  }
+
+  Widget _card1(no) {
+    return Card(
+      child: Container(
+        width: double.infinity,
+        height: 290.0,
+        child: Column(
+          children: [
+// first row
+            Row(
+              children: [
+                _cardButtons('1'),
+                _cardButtons('2'),
+                _cardButtons('3'),
+                _cardButtons('4'),
+                _cardButtons('5'),
+                _cardButtons('6'),
+                _cardButtons('7'),
+                _cardButtons('8'),
+                _cardButtons('9'),
+                _cardButtons('0'),
+              ],
+            ),
+// second row
+            Row(
+              children: [
+                _cardButtons('Q'),
+                _cardButtons('W'),
+                _cardButtons('E'),
+                _cardButtons('R'),
+                _cardButtons('T'),
+                _cardButtons('Y'),
+                _cardButtons('U'),
+                _cardButtons('I'),
+                _cardButtons('O'),
+                _cardButtons('P'),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18.0),
+              child: Row(
+                children: [
+                  _cardButtons('A'),
+                  _cardButtons('S'),
+                  _cardButtons('D'),
+                  _cardButtons('F'),
+                  _cardButtons('G'),
+                  _cardButtons('H'),
+                  _cardButtons('J'),
+                  _cardButtons('K'),
+                  _cardButtons('L'),
+                ],
               ),
             ),
-            style: TextStyle(fontSize: 24),
-            autofocus: true,
-            showCursor: true,
-            readOnly: _readOnly,
-          ),
-          IconButton(
-            icon: Icon(Icons.keyboard),
-            onPressed: () {
-              setState(() {
-                _readOnly = !_readOnly;
-              });
-            },
-          ),
-          Spacer(),
-          CustomKeyboard(
-            onTextInput: (myText) {
-              _insertText(myText);
-            },
-            onBackspace: () {
-              _backspace();
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _insertText(String myText) {
-    final text = _controller.text;
-    final textSelection = _controller.selection;
-    final newText = text.replaceRange(
-      textSelection.start,
-      textSelection.end,
-      myText,
-    );
-    final myTextLength = myText.length;
-    _controller.text = newText;
-    _controller.selection = textSelection.copyWith(
-      baseOffset: textSelection.start + myTextLength,
-      extentOffset: textSelection.start + myTextLength,
-    );
-  }
-
-  void _backspace() {
-    final text = _controller.text;
-    final textSelection = _controller.selection;
-    final selectionLength = textSelection.end - textSelection.start;
-
-    // There is a selection.
-    if (selectionLength > 0) {
-      final newText = text.replaceRange(
-        textSelection.start,
-        textSelection.end,
-        '',
-      );
-      _controller.text = newText;
-      _controller.selection = textSelection.copyWith(
-        baseOffset: textSelection.start,
-        extentOffset: textSelection.start,
-      );
-      return;
-    }
-
-    // The cursor is at the beginning.
-    if (textSelection.start == 0) {
-      return;
-    }
-
-    // Delete the previous character
-    final previousCodeUnit = text.codeUnitAt(textSelection.start - 1);
-    final offset = _isUtf16Surrogate(previousCodeUnit) ? 2 : 1;
-    final newStart = textSelection.start - offset;
-    final newEnd = textSelection.start;
-    final newText = text.replaceRange(
-      newStart,
-      newEnd,
-      '',
-    );
-    _controller.text = newText;
-    _controller.selection = textSelection.copyWith(
-      baseOffset: newStart,
-      extentOffset: newStart,
-    );
-  }
-
-  bool _isUtf16Surrogate(int value) {
-    return value & 0xF800 == 0xD800;
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-}
-
-class CustomKeyboard extends StatelessWidget {
-  CustomKeyboard({
-    Key? key,
-    this.onTextInput,
-    this.onBackspace,
-  }) : super(key: key);
-
-  final ValueSetter<String>? onTextInput;
-  final VoidCallback? onBackspace;
-
-  void _textInputHandler(String text) => onTextInput?.call(text);
-
-  void _backspaceHandler() => onBackspace?.call();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 160,
-      color: Colors.blue,
-      child: Column(
-        children: [
-          buildRowOne(),
-          buildRowTwo(),
-          buildRowThree(),
-        ],
-      ),
-    );
-  }
-
-  Expanded buildRowOne() {
-    return Expanded(
-      child: Row(
-        children: [
-          TextKey(
-            text: '1',
-            onTextInput: _textInputHandler,
-          ),
-          TextKey(
-            text: '2',
-            onTextInput: _textInputHandler,
-          ),
-          TextKey(
-            text: '3',
-            onTextInput: _textInputHandler,
-          ),
-          TextKey(
-            text: '4',
-            onTextInput: _textInputHandler,
-          ),
-          TextKey(
-            text: '5',
-            onTextInput: _textInputHandler,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Expanded buildRowTwo() {
-    return Expanded(
-      child: Row(
-        children: [
-          TextKey(
-            text: 'a',
-            onTextInput: _textInputHandler,
-          ),
-          TextKey(
-            text: 'b',
-            onTextInput: _textInputHandler,
-          ),
-          TextKey(
-            text: 'c',
-            onTextInput: _textInputHandler,
-          ),
-          TextKey(
-            text: 'd',
-            onTextInput: _textInputHandler,
-          ),
-          TextKey(
-            text: 'e',
-            onTextInput: _textInputHandler,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Expanded buildRowThree() {
-    return Expanded(
-      child: Row(
-        children: [
-          TextKey(
-            text: ' ',
-            flex: 4,
-            onTextInput: _textInputHandler,
-          ),
-          BackspaceKey(
-            onBackspace: _backspaceHandler,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class TextKey extends StatelessWidget {
-  const TextKey({
-    Key? key,
-    @required this.text,
-    this.onTextInput,
-    this.flex = 1,
-  }) : super(key: key);
-
-  final String? text;
-  final ValueSetter<String>? onTextInput;
-  final int flex;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      flex: flex,
-      child: Padding(
-        padding: const EdgeInsets.all(1.0),
-        child: Material(
-          color: Colors.blue.shade300,
-          child: InkWell(
-            onTap: () {
-              onTextInput?.call(text!);
-            },
-            child: Container(
-              child: Center(child: Text(text!)),
+// fourth row
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    _removeCardWidget();
+                    _addCardWidget2();
+                  },
+                  child: const Card(
+                    elevation: 5,
+                    color: Colors.blue,
+                    child: SizedBox(
+                      width: 50,
+                      height: 50,
+                      child: Icon(Icons.arrow_upward),
+                    ),
+                  ),
+                ),
+                _cardButtons('Z'),
+                _cardButtons('X'),
+                _cardButtons('C'),
+                _cardButtons('V'),
+                _cardButtons('B'),
+                _cardButtons('N'),
+                _cardButtons('M'),
+                const Card(
+                  elevation: 5,
+                  color: Colors.blue,
+                  child: SizedBox(
+                    width: 50,
+                    height: 50,
+                    child: Icon(Icons.close),
+                  ),
+                ),
+              ],
             ),
-          ),
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    _removeCardWidget();
+                    _addCardWidget3();
+                  },
+                  child: const Card(
+                    elevation: 5,
+                    color: Colors.blue,
+                    child: SizedBox(
+                      width: 50,
+                      height: 50,
+                      child: Center(
+                        child: Text('!#1'),
+                      ),
+                    ),
+                  ),
+                ),
+                _cardButtons('&'),
+                _cardButtons(','),
+                const Card(
+                  elevation: 5,
+                  color: Colors.blue,
+                  child: SizedBox(
+                    width: 150,
+                    height: 50,
+                  ),
+                ),
+                _cardButtons('.'),
+                const Card(
+                  elevation: 5,
+                  color: Colors.blue,
+                  child: SizedBox(
+                    width: 50,
+                    height: 50,
+                    child: Icon(Icons.arrow_back),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
-}
 
-class BackspaceKey extends StatelessWidget {
-  const BackspaceKey({
-    Key? key,
-    this.onBackspace,
-    this.flex = 1,
-  }) : super(key: key);
+  Widget _card2(no) {
+    return Card(
+      child: Container(
+        width: double.infinity,
+        height: 290.0,
+        child: Column(
+          children: [
+// first row
+            Row(
+              children: [
+                _cardButtons('1'),
+                _cardButtons('2'),
+                _cardButtons('3'),
+                _cardButtons('4'),
+                _cardButtons('5'),
+                _cardButtons('6'),
+                _cardButtons('7'),
+                _cardButtons('8'),
+                _cardButtons('9'),
+                _cardButtons('0'),
+              ],
+            ),
+// second row
+            Row(
+              children: [
+                _cardButtons('q'),
+                _cardButtons('w'),
+                _cardButtons('e'),
+                _cardButtons('r'),
+                _cardButtons('t'),
+                _cardButtons('y'),
+                _cardButtons('u'),
+                _cardButtons('i'),
+                _cardButtons('o'),
+                _cardButtons('p'),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18.0),
+              child: Row(
+                children: [
+                  _cardButtons('a'),
+                  _cardButtons('s'),
+                  _cardButtons('d'),
+                  _cardButtons('f'),
+                  _cardButtons('g'),
+                  _cardButtons('h'),
+                  _cardButtons('j'),
+                  _cardButtons('k'),
+                  _cardButtons('l'),
+                ],
+              ),
+            ),
+// fourth row
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    _removeCardWidget();
+                    _addCardWidget();
+                  },
+                  child: const Card(
+                    elevation: 5,
+                    color: Colors.blue,
+                    child: SizedBox(
+                      width: 50,
+                      height: 50,
+                      child: Icon(Icons.arrow_upward),
+                    ),
+                  ),
+                ),
+                _cardButtons('z'),
+                _cardButtons('x'),
+                _cardButtons('c'),
+                _cardButtons('v'),
+                _cardButtons('b'),
+                _cardButtons('n'),
+                _cardButtons('m'),
+                const Card(
+                  elevation: 5,
+                  color: Colors.blue,
+                  child: SizedBox(
+                    width: 50,
+                    height: 50,
+                    child: Icon(Icons.close),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    _removeCardWidget();
+                    _addCardWidget3();
+                  },
+                  child: const Card(
+                    elevation: 5,
+                    color: Colors.blue,
+                    child: SizedBox(
+                      width: 50,
+                      height: 50,
+                      child: Center(
+                        child: Text('!#1'),
+                      ),
+                    ),
+                  ),
+                ),
+                _cardButtons('&'),
+                _cardButtons(','),
+                const Card(
+                  elevation: 5,
+                  color: Colors.blue,
+                  child: SizedBox(
+                    width: 150,
+                    height: 50,
+                  ),
+                ),
+                _cardButtons('.'),
+                const Card(
+                  elevation: 5,
+                  color: Colors.blue,
+                  child: SizedBox(
+                    width: 50,
+                    height: 50,
+                    child: Icon(Icons.arrow_back),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-  final VoidCallback? onBackspace;
-  final int flex;
+  Widget _card3(no) {
+    return Card(
+      child: Container(
+        width: double.infinity,
+        height: 290.0,
+        child: Column(
+          children: [
+// first row
+            Row(
+              children: [
+                _cardButtons('1'),
+                _cardButtons('2'),
+                _cardButtons('3'),
+                _cardButtons('4'),
+                _cardButtons('5'),
+                _cardButtons('6'),
+                _cardButtons('7'),
+                _cardButtons('8'),
+                _cardButtons('9'),
+                _cardButtons('0'),
+              ],
+            ),
+// second row
+            Row(
+              children: [
+                _cardButtons('+'),
+                _cardButtons('x'),
+                _cardButtons('÷'),
+                _cardButtons('='),
+                _cardButtons('/'),
+                _cardButtons('_'),
+                _cardButtons('€'),
+                _cardButtons('£'),
+                _cardButtons('¥'),
+                _cardButtons('₩'),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18.0),
+              child: Row(
+                children: [
+                  _cardButtons('!'),
+                  _cardButtons('@'),
+                  _cardButtons('#'),
+                  _cardButtons('\$'),
+                  _cardButtons('%'),
+                  _cardButtons('^'),
+                  _cardButtons('&'),
+                  _cardButtons('*'),
+                  _cardButtons('('),
+                  _cardButtons(')'),
+                ],
+              ),
+            ),
+// fourth row
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {},
+                  child: const Card(
+                    elevation: 5,
+                    color: Colors.blue,
+                    child: SizedBox(
+                      width: 50,
+                      height: 50,
+                      child: Center(
+                        child: Text('1/2'),
+                      ),
+                    ),
+                  ),
+                ),
+                _cardButtons('-'),
+                _cardButtons('\''),
+                _cardButtons('"'),
+                _cardButtons(':'),
+                _cardButtons(';'),
+                _cardButtons(','),
+                _cardButtons('?'),
+                const Card(
+                  elevation: 5,
+                  color: Colors.blue,
+                  child: SizedBox(
+                    width: 50,
+                    height: 50,
+                    child: Icon(Icons.close),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    _removeCardWidget();
+                    _addCardWidget();
+                  },
+                  child: const Card(
+                    elevation: 5,
+                    color: Colors.blue,
+                    child: SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: Center(
+                        child: Text('ABC'),
+                      ),
+                    ),
+                  ),
+                ),
+                _cardButtons('&'),
+                _cardButtons(','),
+                const Card(
+                  elevation: 5,
+                  color: Colors.blue,
+                  child: SizedBox(
+                    width: 150,
+                    height: 50,
+                  ),
+                ),
+                _cardButtons('.'),
+                const Card(
+                  elevation: 5,
+                  color: Colors.blue,
+                  child: SizedBox(
+                    width: 50,
+                    height: 50,
+                    child: Icon(Icons.arrow_back),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Custom Keyboard'),
+          centerTitle: true,
+        ),
+        body: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: ListView(
+                    children: [
+                      Column(
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 10.0),
+                            height: size.height - 84,
+                            width: size.width,
+                            color: Colors.lightBlueAccent,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+
+                               Container(
+                              child: Text(_message,
+                                style: GoogleFonts.josefinSans(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500
+                                ),
+                              ),
+                               )
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Column(
+                  children: _cardList,
+                ),
+              ],
+            ),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: ()
+          {
+            if(_keyboardopen==false)
+              {
+                _addCardWidget();
+                _keyboardopen=true;
+                setState((){});
+              }
+            else
+              {
+                _removeCardWidget();
+                _keyboardopen=false;
+                setState((){});
+              }
+            // if(_keyboardopen==true)
+            // {
+            //   _removeCardWidget();
+            //   _keyboardopen=false;
+            //   setState((){});
+            // }
+          },
+          tooltip: 'Add',
+          child:_keyboardopen==false ?  Icon(Icons.add) : Icon(Icons.remove),
+        ),
+      ),
+    );
+  }
+
+  _cardButtons(String txt) {
     return Expanded(
-      flex: flex,
-      child: Padding(
-        padding: const EdgeInsets.all(1.0),
-        child: Material(
-          color: Colors.blue.shade300,
-          child: InkWell(
-            onTap: () {
-              onBackspace?.call();
-            },
+      child: GestureDetector(
+        onTap: () {
+// do something
+        },
+        child: GestureDetector(
+          onTap: ()
+          {
+            _message=_message+txt;
+            setState(() {
+
+            });
+          },
+          child: Card(
+            elevation: 5,
+            color: Colors.red,
             child: Container(
+              height: 40.0,
+              margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
               child: Center(
-                child: Icon(Icons.backspace),
+                child: Text(
+                  txt,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20.0,
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ),
           ),

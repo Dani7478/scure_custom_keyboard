@@ -5,6 +5,8 @@ import 'package:scure_costom_keyboard/Widgets/text_widget.dart';
 import 'package:scure_costom_keyboard/controller/userController.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../all_links.dart';
+
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
 
@@ -23,6 +25,7 @@ class _LoginViewState extends State<LoginView> {
       {
         final prefs = await SharedPreferences.getInstance();
         prefs.setString('phoneno', _cnrollerPhone1.text);
+        Get.to(const AddNewGroup());
       }
   }
 
@@ -146,6 +149,7 @@ class _LoginViewState extends State<LoginView> {
     return Padding(
       padding: const EdgeInsets.only(right: 10),
       child: TextFormField(
+        
         obscureText: abscr,
         controller: _controller,
         decoration: InputDecoration(
@@ -193,7 +197,7 @@ class _LoginViewState extends State<LoginView> {
           color: Colors.black,
         ),
         keyboardType: TextInputType.emailAddress,
-        textInputAction: TextInputAction.next,
+        textInputAction: TextInputAction.done,
       ),
     );
   }

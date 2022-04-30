@@ -36,15 +36,15 @@ dependencies:
   cupertino_icons: ^1.0.2
   google_fonts: ^2.3.1
   scroll_app_bar: ^2.0.0
-  virtual_keyboard: ^0.1.4
+  #virtual_keyboard: ^0.1.4
   get: ^4.6.1
-  rsa_encrypt: ^2.0.0
-  flutter_string_encryption: ^0.3.1
+  #rsa_encrypt: ^2.0.0
+  #flutter_string_encryption: ^0.3.1
   shared_preferences: ^0.5.5
-  fast_rsa: ^3.4.7
-  pointycastle: ^3.5.2
-  pem: ^2.0.0
-  encrypt: ^5.0.1
+  #fast_rsa: ^3.4.7
+  #pointycastle: ^3.5.2
+  #pem: ^2.0.0
+  #encrypt: ^5.0.1
   convex_bottom_bar: ^3.0.0
   dropdown_button2: ^1.4.0
 
