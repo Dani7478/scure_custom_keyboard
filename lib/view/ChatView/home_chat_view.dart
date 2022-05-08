@@ -1,14 +1,33 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scure_costom_keyboard/all_links.dart';
 import 'package:scure_costom_keyboard/view/ChatView/indivisual_message_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../controller/userController.dart';
 
 class HomeChatView extends StatefulWidget {
   @override
   _HomeChatViewState createState() => _HomeChatViewState();
 }
 
+late List UserList=[];
+
 class _HomeChatViewState extends State<HomeChatView> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getData();
+  }
+  getData() async 
+  {
+    UserList=await getUserList();
+    setState((){});
+  }
+
   @override
   Widget build(BuildContext context) => DefaultTabController(
     length: 4,
@@ -67,14 +86,16 @@ class _HomeChatViewState extends State<HomeChatView> {
   );
 
    buildPage1(String text) {
-   return Padding(
+   return UserList.length==0 ? Center(child: CircularProgressIndicator(),) : Padding(
      padding:  EdgeInsets.symmetric(vertical: 30, horizontal: 10),
      child:  ListView.builder(
-       itemCount: 20,
+       itemCount: UserList.length,
          itemBuilder: (context,index){
+           String name= UserList[index]['firstname'];
+            String phone= UserList[index]['contact'];
           return GestureDetector(
              onTap: (){
-               Get.to(IndivisualMessageView(name: 'Saad Hussain', phonno: '0310549844'));
+               Get.to(IndivisualMessageView(name: name, phonno: phone));
              },
              child: Padding(
                padding: const EdgeInsets.only(top: 5),
@@ -85,14 +106,14 @@ class _HomeChatViewState extends State<HomeChatView> {
                      child: Icon(Icons.person),
                    ),
                    title: Text(
-                     "Saad Hussain",
+                    name,
                      style: GoogleFonts.josefinSans(
                        fontSize: 18,
                        fontWeight: FontWeight.w800,
                      ),
                    ),
                    subtitle: Text(
-                     "03105499844",
+                     phone,
                      style: GoogleFonts.josefinSans(
                        fontSize: 18,
                        fontWeight: FontWeight.w600,
@@ -132,4 +153,6 @@ class _HomeChatViewState extends State<HomeChatView> {
       ),
     );
   }
+
+
 }

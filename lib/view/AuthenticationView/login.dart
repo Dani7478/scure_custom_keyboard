@@ -25,7 +25,7 @@ class _LoginViewState extends State<LoginView> {
       {
         final prefs = await SharedPreferences.getInstance();
         prefs.setString('phoneno', _cnrollerPhone1.text);
-        Get.to(const AddNewGroup());
+        Get.to( HomeChatView());
       }
   }
 
@@ -123,13 +123,18 @@ class _LoginViewState extends State<LoginView> {
                         SizedBox(
                           height: 20,
                         ),
-                        Container(
-                          //width: size.width / 2 - 25,
-                          height: 50,
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8)),
-                          child: Center(child: TextWidget.heading5("Register")),
+                        MaterialButton(
+                          onPressed: (){
+                            Get.to(RegistrationView());
+                          },
+                          child: Container(
+                            //width: size.width / 2 - 25,
+                            height: 50,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8)),
+                            child: Center(child: TextWidget.heading5("Register")),
+                          ),
                         ),
                       ],
                     ),

@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scure_costom_keyboard/all_links.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_string_encryption/flutter_string_encryption.dart';
+import 'package:intl/intl.dart';
+
+import '../../Widgets/custom_snackbar.dart';
+import '../../controller/message_controller.dart';
 
 class IndivisualMessageView extends StatefulWidget {
   final String name;
   final String phonno;
-
 
   const IndivisualMessageView({required this.name, required this.phonno});
 
@@ -13,122 +18,165 @@ class IndivisualMessageView extends StatefulWidget {
   State<IndivisualMessageView> createState() => _IndivisualMessageViewState();
 }
 
-bool _isCapital = false;
-bool _isSpecialCahr = false;
-String message='';
+Icon floaticon = Icon(Icons.add);
+bool _keyboardEnable = false;
+int whichcard = 1;
+String message = '';
+late List ConservationList=[];
+late String ownernumber;
 
 class _IndivisualMessageViewState extends State<IndivisualMessageView> {
   //const IndivisualMessageView({Key? key}) : super(key: key);
 
-  
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getData();
+  }
+  getData() async 
+  {
+     final prefs = await SharedPreferences.getInstance();
+     ownernumber=prefs.getString('phoneno');
+     var response=await getSingleConservation(ownernumber,widget.phonno);
+     if(response!=false)
+     {
+        ConservationList=response;
+        setState((){});
+     }
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: const Color(0xFF0f65b3),
-          toolbarHeight: 60.0,
-          title: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.name,
-                style: GoogleFonts.josefinSans(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                ),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF0f65b3),
+        toolbarHeight: 60.0,
+        title: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.name,
+              style: GoogleFonts.josefinSans(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
               ),
-              SizedBox(
-                height: 5,
-              ),
-              Text(
-                widget.phonno,
-                style: GoogleFonts.josefinSans(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            Stack(
-              children: [
-                FlatButton(
-                  onPressed: () async {
-                   //encrypt();
-                  },
-                  child: const Center(
-                    child: Icon(
-                      Icons.notifications,
-                      color: Colors.white,
-                      size: 30,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 25,
-                  right: 17,
-                  child: CircleAvatar(
-                    backgroundColor: Colors.black,
-                    radius: 6,
-                  ),
-                ),
-                Container(),
-              ],
             ),
-            PopupMenuButton<String>(onSelected: (value) {
-              if (value == "logout") {
-                //____
-              }
-            }, itemBuilder: (BuildContext context) {
-              return [
-                PopupMenuItem(
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.logout,
-                          color: Color(0xFF0f65b3),
-                        ),
-                        onPressed: () async {},
-                      ),
-                      const SizedBox(
-                        width: 10.0,
-                      ),
-                      const Text(
-                        "Logout",
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      )
-                    ],
-                  ),
-                  value: "logout",
-                ),
-              ];
-            }),
+            const SizedBox(
+              height: 5,
+            ),
+            Text(
+              widget.phonno,
+              style: GoogleFonts.josefinSans(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
-        backgroundColor: Colors.white,
-        body: Container(
-          height: size.height,
-          width: size.width,
-          //color: Colors.grey,
-          child: Column(
+        actions: [
+          Stack(
             children: [
-              Expanded(
-                  flex: 6,
-                  child: Container(
-                    color: Colors.red,
-                  )),
-              Expanded(
-                  flex: 3,
-                  child: Container(
-                 //   color: Colors.green,
-                    child: KeayBoard(),
-                  ))
+              FlatButton(
+                onPressed: () async {
+                  //encrypt();
+                },
+                child: const Center(
+                  child: Icon(
+                    Icons.notifications,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                ),
+              ),
+              const Positioned(
+                top: 25,
+                right: 17,
+                child: CircleAvatar(
+                  backgroundColor: Colors.black,
+                  radius: 6,
+                ),
+              ),
+              Container(),
             ],
           ),
-        ));
+          PopupMenuButton<String>(onSelected: (value) {
+            if (value == "logout") {
+              //____
+            }
+          }, itemBuilder: (BuildContext context) {
+            return [
+              PopupMenuItem(
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.logout,
+                        color: Color(0xFF0f65b3),
+                      ),
+                      onPressed: () async {},
+                    ),
+                    const SizedBox(
+                      width: 10.0,
+                    ),
+                    const Text(
+                      "Logout",
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    )
+                  ],
+                ),
+                value: "logout",
+              ),
+            ];
+          }),
+        ],
+      ),
+      backgroundColor: Colors.white,
+      body: Column(
+        children: [
+          Expanded(
+            flex: _keyboardEnable == false ? 1 : 3,
+            child: Container(
+              height:1000,
+              width: size.width,
+              color: Colors.pink,
+              child: chatUI(),
+            ),
+          ),
+          _keyboardEnable == false
+              ? Container()
+              : Expanded(
+                  flex: 2,
+                  child: Container(
+                    color: Colors.white,
+                    child: whichcard == 0
+                        ? _card1()
+                        : whichcard == 1
+                            ? _card2()
+                            : _card3(),
+                  ),
+                ),
+        ],
+      ),
+      floatingActionButton: _keyboardEnable == true
+          ? Container()
+          : FloatingActionButton(
+              onPressed: () {
+                if (_keyboardEnable == false) {
+                  _keyboardEnable = true;
+                  floaticon = Icon(Icons.remove);
+                } else {
+                  _keyboardEnable = false;
+                  floaticon = Icon(Icons.add);
+                }
+                setState(() {});
+              },
+              child: floaticon,
+              backgroundColor: Colors.redAccent,
+            ),
+    );
   }
 
   MessageDetail1(Size size) {
@@ -153,569 +201,754 @@ class _IndivisualMessageViewState extends State<IndivisualMessageView> {
       ),
     );
   }
-}
 
-class KeayBoard extends StatefulWidget {
- // const KeayBoard({Key? key}) : super(key: key);
-
-  @override
-  State<KeayBoard> createState() => _KeayBoardState();
-}
-
-class _KeayBoardState extends State<KeayBoard> {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        children: [
-          Expanded(
-              flex: 1,
-              child: Container(
-                color: Colors.grey,
-                width: double.infinity,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 5),
-                  child: Text(message,
-                    style: GoogleFonts.roboto(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500
-                    ),
-                  ),
+  Widget _card1() {
+    return Card(
+      child: Container(
+        width: double.infinity,
+        child: Column(
+          children: [
+            // first row
+            Expanded(
+                child: Container(
+              width: double.infinity,
+              color: Colors.blueAccent,
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Text(
+                  message,
+                  style: GoogleFonts.roboto(fontSize: 15, color: Colors.white),
                 ),
-              )),
-          Expanded(
-              flex: 4,
-              child: Container(
-                //color: Colors.black,
-                width: double.infinity,
-                child: Column(
+              ),
+            )),
+            Expanded(
+              child: Row(
+                children: [
+                  _cardButtons('1'),
+                  _cardButtons('2'),
+                  _cardButtons('3'),
+                  _cardButtons('4'),
+                  _cardButtons('5'),
+                  _cardButtons('6'),
+                  _cardButtons('7'),
+                  _cardButtons('8'),
+                  _cardButtons('9'),
+                  _cardButtons('0'),
+                ],
+              ),
+            ),
+            // second row
+            Expanded(
+              child: Row(
+                children: [
+                  _cardButtons('Q'),
+                  _cardButtons('W'),
+                  _cardButtons('E'),
+                  _cardButtons('R'),
+                  _cardButtons('T'),
+                  _cardButtons('Y'),
+                  _cardButtons('U'),
+                  _cardButtons('I'),
+                  _cardButtons('O'),
+                  _cardButtons('P'),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                child: Row(
                   children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Expanded(
-                              child:
-                                  FlatButton(
-                                    onPressed: () { message=message+'1';
-                                    setState(() {});
-                                    print(message);},
-                                    hoverColor: Colors.lightGreenAccent,
-                                    highlightColor: Colors.yellowAccent,
-                                    child: Container(
-                                        child: Center(child: Text("1"))),
-                                  )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'2';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("2"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'3';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("3"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'4';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("4"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'5';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("5"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'6';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("6"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'7';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("7"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'8';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("8"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'9';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("9"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'0';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("0"))),
-                              )
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'q';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("q"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'w';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("w"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'e';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("e"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'r';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("r"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'t';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("t"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'y';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("y"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'u';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("u"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'i';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("i"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'o';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("o"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'p';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("p"))),
-                              )
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'a';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("a"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'s';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("s"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'d';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("d"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'f';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("f"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'g';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("g"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'h';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("h"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'j';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("j"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'k';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("k"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'l';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("l"))),
-                              )
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'z';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("z"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'x';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("x"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'c';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("c"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'v';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("v"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'b';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("b"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'n';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("n"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () { message=message+'m';
-                                setState(() {});
-                                print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("m"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () {
-                                  if (message != null && message.length > 0) {
-                                    message = message.substring(0, message.length - 1);
-                                  }
-                                  setState((){});
-                                },
-                                onLongPress: (){
-                                  message='';
-                                  setState((){});
-                                },
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Icon(Icons.delete, size: 20,))),
-                              )
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () {
-                                  _isCapital=true;
-                                  setState(() {});
-                                  print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("cpas"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () {
-                                  message=message+' ';
-                                  setState(() {});
-                                  print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("space"))),
-                              )
-                          ),
-                          Expanded(
-                              child:
-                              FlatButton(
-                                onPressed: () {
-                                  _isSpecialCahr=true;
-                                  setState(() {});
-                                  print(message);},
-                                hoverColor: Colors.lightGreenAccent,
-                                highlightColor: Colors.yellowAccent,
-                                child: Container(
-                                    child: Center(child: Text("@#%^"))),
-                              )
-                          ),
-
-                        ],
-                      ),
-                    ),
+                    _cardButtons('A'),
+                    _cardButtons('S'),
+                    _cardButtons('D'),
+                    _cardButtons('F'),
+                    _cardButtons('G'),
+                    _cardButtons('H'),
+                    _cardButtons('J'),
+                    _cardButtons('K'),
+                    _cardButtons('L'),
                   ],
                 ),
-              )),
-        ],
+              ),
+            ),
+            // fourth row
+            Expanded(
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      //_removeCardWidget();
+                      // _addCardWidget2();
+                      whichcard = 1;
+                      setState(() {});
+                    },
+                    child: const Card(
+                      elevation: 5,
+                      color: Colors.blue,
+                      child: SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: Icon(Icons.arrow_upward),
+                      ),
+                    ),
+                  ),
+                  _cardButtons('Z'),
+                  _cardButtons('X'),
+                  _cardButtons('C'),
+                  _cardButtons('V'),
+                  _cardButtons('B'),
+                  _cardButtons('N'),
+                  _cardButtons('M'),
+                  InkWell(
+                      onTap: () {
+                      if (message!= null && message.length > 0) {
+                        message = message.substring(0, message.length - 1);
+                        setState((){});
+                      }
+                    },
+                    onLongPress: ()
+                    {
+                      message='';
+                      setState((){});
+                    },
+                    child: const Card(
+                      elevation: 5,
+                      color: Colors.blue,
+                      child: SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: Icon(Icons.close),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      //  _removeCardWidget();
+                      // _addCardWidget3();
+                    },
+                    child: InkWell(
+                      onTap: (){
+                        whichcard=2;
+                      },
+                      child: const Card(
+                        elevation: 5,
+                        color: Colors.blue,
+                        child: SizedBox(
+                          width: 50,
+                          height: 50,
+                          child: Center(
+                            child: Text('!#1'),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  _cardButtons('&'),
+                  _cardButtons(','),
+                  const Card(
+                    elevation: 5,
+                    color: Colors.blue,
+                    child: SizedBox(
+                      width: 150,
+                      height: 50,
+                    ),
+                  ),
+                  _cardButtons('.'),
+                  InkWell(
+                    onTap: () {
+                      _keyboardEnable = false;
+                      setState(() {});
+                    },
+                    child: const Card(
+                      elevation: 5,
+                      color: Colors.blue,
+                      child: SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: Icon(Icons.arrow_back),
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {},
+                    child: const Card(
+                      elevation: 5,
+                      color: Colors.blue,
+                      child: SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: Icon(Icons.arrow_forward),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+
+  Widget _card2() {
+    return Card(
+      child: Container(
+        width: double.infinity,
+        child: Column(
+          children: [
+            Expanded(
+                child: Container(
+              width: double.infinity,
+              color: Colors.blueAccent,
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Text(
+                  message,
+                  style: GoogleFonts.roboto(fontSize: 15, color: Colors.white),
+                ),
+              ),
+            )),
+            // first row
+            Expanded(
+              child: Row(
+                children: [
+                  _cardButtons('1'),
+                  _cardButtons('2'),
+                  _cardButtons('3'),
+                  _cardButtons('4'),
+                  _cardButtons('5'),
+                  _cardButtons('6'),
+                  _cardButtons('7'),
+                  _cardButtons('8'),
+                  _cardButtons('9'),
+                  _cardButtons('0'),
+                ],
+              ),
+            ),
+            // second row
+            Expanded(
+              child: Row(
+                children: [
+                  _cardButtons('q'),
+                  _cardButtons('w'),
+                  _cardButtons('e'),
+                  _cardButtons('r'),
+                  _cardButtons('t'),
+                  _cardButtons('y'),
+                  _cardButtons('u'),
+                  _cardButtons('i'),
+                  _cardButtons('o'),
+                  _cardButtons('p'),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                child: Row(
+                  children: [
+                    _cardButtons('a'),
+                    _cardButtons('s'),
+                    _cardButtons('d'),
+                    _cardButtons('f'),
+                    _cardButtons('g'),
+                    _cardButtons('h'),
+                    _cardButtons('j'),
+                    _cardButtons('k'),
+                    _cardButtons('l'),
+                  ],
+                ),
+              ),
+            ),
+            // fourth row
+            Expanded(
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      // _removeCardWidget();
+                      // _addCardWidget();
+
+                      whichcard = 0;
+
+                      setState(() {});
+                    },
+                    child: const Card(
+                      elevation: 5,
+                      color: Colors.blue,
+                      child: SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: Icon(Icons.arrow_upward),
+                      ),
+                    ),
+                  ),
+                  _cardButtons('z'),
+                  _cardButtons('x'),
+                  _cardButtons('c'),
+                  _cardButtons('v'),
+                  _cardButtons('b'),
+                  _cardButtons('n'),
+                  _cardButtons('m'),
+                  InkWell(
+                    onTap: () {
+                      if (message!= null && message.length > 0) {
+                        message = message.substring(0, message.length - 1);
+                        setState((){});
+                      }
+                    },
+                    onLongPress: ()
+                    {
+                      message='';
+                      setState((){});
+                    },
+
+                    child: InkWell(
+                        onTap: () {
+                      if (message!= null && message.length > 0) {
+                        message = message.substring(0, message.length - 1);
+                        setState((){});
+                      }
+                    },
+                    onLongPress: ()
+                    {
+                      message='';
+                      setState((){});
+                    },
+                      child: const Card(
+                        elevation: 5,
+                        color: Colors.blue,
+                        child: SizedBox(
+                          width: 50,
+                          height: 50,
+                          child: Icon(Icons.close),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      // _removeCardWidget();
+                      //_addCardWidget3();
+                      whichcard = 3;
+                      setState(() {});
+                    },
+                    child: const Card(
+                      elevation: 5,
+                      color: Colors.blue,
+                      child: SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: Center(
+                          child: Text('!#1'),
+                        ),
+                      ),
+                    ),
+                  ),
+                  _cardButtons('&'),
+                  _cardButtons(','),
+                  InkWell(
+                    onTap: () {
+                      message = message + ' ';
+                      setState(() {});
+                    },
+                    child: const Card(
+                      elevation: 5,
+                      color: Colors.blue,
+                      child: SizedBox(
+                        width: 150,
+                        height: 50,
+                      ),
+                    ),
+                  ),
+                  _cardButtons('.'),
+                  InkWell(
+                    onTap: () {
+                      _keyboardEnable = false;
+                      setState(() {});
+                    },
+                    child: const Card(
+                      elevation: 5,
+                      color: Colors.blue,
+                      child: SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: Icon(Icons.arrow_back),
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      SentMessage();
+                    },
+                    child: const Card(
+                      elevation: 5,
+                      color: Colors.blue,
+                      child: SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: Icon(Icons.arrow_forward),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _card3() {
+    return Card(
+      child: Container(
+        width: double.infinity,
+        // height: 290.0,
+        child: Column(
+          children: [
+            Expanded(
+                child: Container(
+              width: double.infinity,
+              color: Colors.blueAccent,
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Text(
+                  message,
+                  style: GoogleFonts.roboto(fontSize: 15, color: Colors.white),
+                ),
+              ),
+            )),
+            // first row
+            Expanded(
+              child: Row(
+                children: [
+                  _cardButtons('1'),
+                  _cardButtons('2'),
+                  _cardButtons('3'),
+                  _cardButtons('4'),
+                  _cardButtons('5'),
+                  _cardButtons('6'),
+                  _cardButtons('7'),
+                  _cardButtons('8'),
+                  _cardButtons('9'),
+                  _cardButtons('0'),
+                ],
+              ),
+            ),
+            // second row
+            Expanded(
+              child: Row(
+                children: [
+                  _cardButtons('+'),
+                  _cardButtons('x'),
+                  _cardButtons('÷'),
+                  _cardButtons('='),
+                  _cardButtons('/'),
+                  _cardButtons('_'),
+                  _cardButtons('€'),
+                  _cardButtons('£'),
+                  _cardButtons('¥'),
+                  _cardButtons('₩'),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                child: Row(
+                  children: [
+                    _cardButtons('!'),
+                    _cardButtons('@'),
+                    _cardButtons('#'),
+                    _cardButtons('\$'),
+                    _cardButtons('%'),
+                    _cardButtons('^'),
+                    _cardButtons('&'),
+                    _cardButtons('*'),
+                    _cardButtons('('),
+                    _cardButtons(')'),
+                  ],
+                ),
+              ),
+            ),
+            // fourth row
+            Expanded(
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {},
+                    child: const Card(
+                      elevation: 5,
+                      color: Colors.blue,
+                      child: SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: Center(
+                          child: Text('1/2'),
+                        ),
+                      ),
+                    ),
+                  ),
+                  _cardButtons('-'),
+                  _cardButtons('\''),
+                  _cardButtons('"'),
+                  _cardButtons(':'),
+                  _cardButtons(';'),
+                  _cardButtons(','),
+                  _cardButtons('?'),
+                  const Card(
+                    elevation: 5,
+                    color: Colors.blue,
+                    child: SizedBox(
+                      width: 50,
+                      height: 50,
+                      child: Icon(Icons.close),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      //_removeCardWidget();
+                      //_addCardWidget();
+                      whichcard = 1;
+                      setState(() {});
+                    },
+                    child: const Card(
+                      elevation: 5,
+                      color: Colors.blue,
+                      child: SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: Center(
+                          child: Text('ABC'),
+                        ),
+                      ),
+                    ),
+                  ),
+                  _cardButtons('&'),
+                  _cardButtons(','),
+                  const Card(
+                    elevation: 5,
+                    color: Colors.blue,
+                    child: SizedBox(
+                      width: 150,
+                      height: 50,
+                    ),
+                  ),
+                  _cardButtons('.'),
+                  InkWell(
+                    onTap: () {
+                      _keyboardEnable = false;
+                      setState(() {});
+                    },
+                    child: const Card(
+                      elevation: 5,
+                      color: Colors.blue,
+                      child: SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: Icon(Icons.arrow_back),
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {},
+                    child: const Card(
+                      elevation: 5,
+                      color: Colors.blue,
+                      child: SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: Icon(Icons.arrow_forward),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  _cardButtons(String txt) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          // do something
+          message = message + txt;
+          setState(() {});
+        },
+        child: Card(
+          elevation: 5,
+          color: Colors.red,
+          child: Container(
+            height: 30.0,
+            margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+            child: Center(
+              child: Text(
+                txt,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20.0,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // int keyNo = 0;
+  // final List<Widget> _cardList = [];
+
+  SentMessage() async {
+    final prefs = await SharedPreferences.getInstance();
+    //___________Date Time
+    DateTime now = DateTime.now();
+    String Date = DateFormat('EEE d MMM').format(now);
+    String time = now.hour.toString() + ":" + now.minute.toString();
+    print(time);
+    print(Date);
+    String sender = prefs.getString('phoneno');
+    String reciever = widget.phonno;
+    print('Sender: $sender \n reciever: $reciever');
+    var cryptor = PlatformStringCryptor();
+    final salt = await cryptor.generateSalt();
+    String key = await cryptor.generateKeyFromPassword(message, salt);
+    String encryptMessage = await encryptText(key);
+    var data = {
+      'sender': sender,
+      'reciever': reciever,
+      'date': Date,
+      'time': time,
+      'publickey': 'NULL',
+      'privatekey': key,
+      'message1': encryptMessage,
+      'status': '0',
+    };
+    bool result = await addNewMessage(data);
+    if (result == true) {
+      showSnackBar(context, 'Message Sent', 'Ok');
+      getData();
+    }
+
+     String decryptedText =await decryptText(encryptMessage,key);
+  }
+
+  encryptText(String key) async {
+    var cryptor = PlatformStringCryptor();
+    // here pass the password entered by user and the key
+    var encryptMessage = await cryptor.encrypt(message, key);
+    print(encryptMessage);
+    return encryptMessage;
+  }
+
+  decryptText(String encryptedText, String key) async {
+    var cryptor = PlatformStringCryptor();
+    try {
+      final String decryptedMessage = await cryptor.decrypt(encryptedText, key);
+      print(decryptedMessage); // - A string to encrypt.
+      return decryptedMessage;
+    } on MacMismatchException {
+      // unable to decrypt (wrong key or forged data)
+    }
+  }
+
+  chatUI() {
+
+    return ConservationList.length==0 ? Center(child: CircularProgressIndicator(),): ListView.builder(
+      itemCount:ConservationList.length ,
+      itemBuilder: (context,index){
+        String message1=ConservationList[index]['message1'];
+        String key=ConservationList[index]['privatekey'];
+     
+        return InkWell(
+          onLongPress: () async{
+          // String decMessage= await decryptText(ConservationList[index]['message'], ConservationList[index]['privatekey']);
+           String decryptedText =await decryptText(message1,key);
+           message=decryptedText.toString();
+           setState((){});
+          print(decryptedText);
+          },
+          child: Container(
+               //height:120,
+          child: Padding(
+            padding:
+            ownernumber!=ConservationList[index]['sender'] ?
+             EdgeInsets.only( right: 75, left: 8.0, top: 8.0, bottom: 8.0):
+             EdgeInsets.only( left: 75, right: 8.0, top: 8.0, bottom: 8.0) ,
+            child: ClipRRect(
+              borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(0),
+                  bottomRight: Radius.circular(15),
+                  topLeft: Radius.circular(15),
+                  topRight: Radius.circular(15)),
+              child: Container(
+                color: ownernumber!=ConservationList[index]['sender'] ?Colors.greenAccent : Colors.blueAccent,
+                child: Stack(
+                  children: <Widget>[
+                    // !isImage
+                    //     ? Padding(
+                    //   padding: const EdgeInsets.only(
+                    //       right: 8.0, left: 8.0, top: 8.0, bottom: 15.0),
+                    //   child: Text(
+                    //     content,
+                    //   ),
+                    // )
+                    //     :
+                         Padding(
+                      padding: const EdgeInsets.only(
+                          right: 8.0, left: 8.0, top: 8.0, bottom: 15.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            ConservationList[index]['message1'],
+                          )
+                        ],
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 1,
+                      right: 10,
+                      child: Text(
+                        '11:10',
+                        style: TextStyle(
+                            fontSize: 10, color: Colors.black.withOpacity(0.6)),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          )),
+        );
+
+      });
+  }
 }
+
+
